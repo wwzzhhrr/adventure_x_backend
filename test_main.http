@@ -1,11 +1,66 @@
 # Test your FastAPI endpoints
 
-GET http://127.0.0.1:8000/
+### 测试健康检查
+GET http://localhost:8000/
 Accept: application/json
 
-###
-
-GET http://127.0.0.1:8000/hello/User
+### 测试问候接口
+GET http://localhost:8000/hello/User
 Accept: application/json
 
-###
+### 测试用户注册
+POST http://localhost:8000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "username": "testuser",
+  "password": "password123",
+  "bio": "Test user bio"
+}
+
+### 测试用户登录
+POST http://localhost:8000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### 测试重复注册（应该返回错误）
+POST http://localhost:8000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "username": "testuser",
+  "password": "password123"
+}
+
+### 测试错误登录（应该返回错误）
+POST http://localhost:8000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "wrong@example.com",
+  "password": "wrongpassword"
+}
+
+### 更新用户bio（需要先登录获取token）
+PUT http://localhost:8000/api/auth/update-bio
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "bio": "这是我的新个人简介"
+}
+
+### 清空用户bio
+PUT http://localhost:8000/api/auth/update-bio
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "bio": null
+}

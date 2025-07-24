@@ -1,0 +1,36 @@
+### 1. 注册用户获取token
+POST http://localhost:8000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "debug@example.com",
+  "username": "debuguser",
+  "password": "password123",
+  "bio": "Initial bio"
+}
+
+### 2. 使用获取的token更新bio（请替换下面的YOUR_TOKEN_HERE）
+PUT http://localhost:8000/api/auth/update-bio
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "bio": "Updated bio for debugging"
+}
+
+### 3. 测试无效token的情况
+PUT http://localhost:8000/api/auth/update-bio
+Content-Type: application/json
+Authorization: Bearer invalid_token
+
+{
+  "bio": "This should fail"
+}
+
+### 4. 测试缺少Authorization头的情况
+PUT http://localhost:8000/api/auth/update-bio
+Content-Type: application/json
+
+{
+  "bio": "This should also fail"
+}
