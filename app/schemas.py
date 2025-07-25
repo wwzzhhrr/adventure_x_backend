@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
+from decimal import Decimal
 
 class UserCreate(BaseModel):
     """用户注册请求模型"""
@@ -34,3 +35,24 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     user: UserResponse
+
+class TaskCreate(BaseModel):
+    """任务创建请求模型"""
+    title: str
+    description: Optional[str] = None
+    reward_amount: Optional[Decimal] = None
+    skill_tags: Optional[List[str]] = None
+
+class TaskResponse(BaseModel):
+    """任务响应模型"""
+    id: int
+    title: str
+    description: Optional[str] = None
+    creator_id: int
+    reward_amount: Optional[Decimal] = None
+    status: str
+    skill_tags: Optional[List[str]] = None
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = {"from_attributes": True}

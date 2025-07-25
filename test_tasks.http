@@ -1,0 +1,66 @@
+### 测试任务API端点
+
+### 1. 用户注册（获取token）
+POST http://localhost:8000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "taskuser@example.com",
+  "username": "taskuser",
+  "password": "password123",
+  "bio": "我是一个任务发布者"
+}
+
+### 2. 用户登录（获取token）
+POST http://localhost:8000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "taskuser@example.com",
+  "password": "password123"
+}
+
+### 3. 创建任务（需要先登录获取token）
+POST http://localhost:8000/api/tasks/
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "title": "开发一个网站首页",
+  "description": "需要开发一个现代化的网站首页，包含响应式设计和动画效果",
+  "reward_amount": 1500.00,
+  "skill_tags": ["HTML", "CSS", "JavaScript", "React"]
+}
+
+### 4. 获取所有任务
+GET http://localhost:8000/api/tasks/
+
+### 5. 获取单个任务详情
+GET http://localhost:8000/api/tasks/1
+
+### 6. 获取我创建的任务
+GET http://localhost:8000/api/tasks/my/created
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 7. 创建另一个任务示例
+POST http://localhost:8000/api/tasks/
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "title": "移动应用UI设计",
+  "description": "为iOS和Android应用设计用户界面，需要提供Figma设计稿",
+  "reward_amount": 2000.00,
+  "skill_tags": ["UI设计", "Figma", "移动端设计"]
+}
+
+### 8. 创建无奖励任务
+POST http://localhost:8000/api/tasks/
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "title": "开源项目贡献",
+  "description": "为开源项目贡献代码，提升技能",
+  "skill_tags": ["Python", "开源", "Git"]
+}

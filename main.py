@@ -4,8 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from app.api.auth import router as auth_router
+from app.api.tasks import router as tasks_router
 from app.database import engine
 from app.models.user import Base
+from app.models.task import Task  # 导入Task模型以确保表被创建
 
 # 加载环境变量
 load_dotenv()
@@ -37,6 +39,7 @@ def create_app() -> FastAPI:
     
     # 注册路由
     app.include_router(auth_router, prefix="/api/auth", tags=["authentication"])
+    app.include_router(tasks_router, prefix="/api", tags=["tasks"])
     
     return app
 
