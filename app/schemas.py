@@ -30,6 +30,13 @@ class UserResponse(BaseModel):
     
     model_config = {"from_attributes": True}
 
+class UserProfileResponse(UserResponse):
+    """用户profile响应模型，包括钱包信息和余额"""
+    wallet_address: Optional[str] = None
+    balance: Optional[Decimal] = None
+    
+    model_config = {"from_attributes": True}
+
 class Token(BaseModel):
     """JWT令牌响应模型"""
     access_token: str

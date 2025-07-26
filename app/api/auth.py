@@ -6,12 +6,14 @@ from app.schemas import UserCreate, UserLogin, Token, UserResponse, UserUpdateBi
 from app.auth import get_password_hash, verify_password, create_access_token, get_current_user_from_token
 from datetime import timedelta
 from typing import Optional
+from app.schemas import UserProfileResponse
+from app.services.blockchain import CommuCoinService
 
 router = APIRouter()
 
 
 @router.post("/register", response_model=Token)
-def register_user(user: UserCreate, db: Session = Depends(get_db)):
+async def register_user(user: UserCreate, db: Session = Depends(get_db)):
     """用户注册"""
     # 检查邮箱是否已存在
     db_user = db.query(User).filter(User.email == user.email).first()
@@ -41,6 +43,16 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
     
+    # 自动生成钱包
+    from app.services.blockchain import CommuCoinService
+    blockchain = CommuCoinService()
+    wallet = await blockchain.create_wallet()
+    db_user.wallet_address = wallet["address"]
+    db_user.wallet_public_key = wallet["public_key"]
+    db_user.wallet_private_key = wallet["encrypted_private_key"]
+    db.commit()
+    db.refresh(db_user)
+    
     # 创建访问令牌
     access_token_expires = timedelta(minutes=30)
     access_token = create_access_token(
@@ -52,6 +64,31 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         "token_type": "bearer",
         "user": UserResponse.model_validate(db_user)
     }
+
+
+@router.get("/me", response_model=UserProfileResponse)
+async def get_user_profile(
+    current_user_email: str = Depends(get_current_user_from_token),
+    db: Session = Depends(get_db)
+):
+    """获取当前用户的所有信息，用于‘我的’页面"""
+    user = db.query(User).filter(User.email == current_user_email).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    service = CommuCoinService()
+    balance = await service.get_comu_balance(user.wallet_address)
+    
+    return UserProfileResponse(
+        id=user.id,
+        email=user.email,
+        username=user.username,
+        bio=user.bio,
+        created_at=user.created_at,
+        updated_at=user.updated_at,
+        wallet_address=user.wallet_address,
+        balance=balance
+    )
 
 
 @router.put("/update-bio", response_model=UserResponse)

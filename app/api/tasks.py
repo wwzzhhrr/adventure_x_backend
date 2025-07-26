@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
+from decimal import Decimal
 
 from app.database import get_db
 from app.models.task import Task
 from app.models.user import User
 from app.schemas import TaskCreate, TaskResponse
 from app.auth import get_current_user_from_token
+from app.services.blockchain import CommuCoinService
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -28,6 +30,15 @@ async def create_task(
         )
     
     # 创建任务
+    # Check blockchain balance
+    service = CommuCoinService()
+    balance = await service.get_balance(current_user.wallet_address)
+    if balance < Decimal(task_data.reward_amount):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Insufficient balance to create task"
+        )
+    
     db_task = Task(
         title=task_data.title,
         description=task_data.description,
